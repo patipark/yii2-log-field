@@ -1,0 +1,21 @@
+{
+    "name": "patipark/yii2-log-field",
+    "description": "ใช้ในการเก็บ Log ของ Active Record Model โดยเก็บเฉพาะฟิวดที่เปลียนแปลงเท่านั้น และแปลงข้อมูลเป็น string ทั้งหมดก่อนเก็บลง Log",
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+          "name": "Patipark Sopha",
+          "email": "iamwad@gmail.com"
+        }
+      ],
+    "autoload": {
+        "psr-4": {
+            "patipark\\yii2logfield\\": "src"
+        }
+    },
+    "require": {
+        "php": ">=5.6.0",
+        "yiisoft/yii2": "*"
+    }
+}
