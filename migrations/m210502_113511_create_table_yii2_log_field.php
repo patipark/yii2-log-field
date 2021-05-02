@@ -15,8 +15,8 @@ class m210502_113511_create_table_yii2_log_field extends Migration
         $this->createTable('yii2_log_field', [
             'id' => $this->primaryKey(),
             'table_name' => $this->string(50),
-            'field_name' => $this->string(50),
             'primary_key' => $this->string(50),
+            'field_name' => $this->string(50),
             'before_change' => Schema::TYPE_TEXT,
             'after_change' => Schema::TYPE_TEXT,
             'event_time' => Schema::TYPE_DATETIME,
