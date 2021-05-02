@@ -37,7 +37,7 @@ class LogBehavior extends Behavior
         foreach ($beforeChange as $key) :
             // $before = (string)$event->sender->oldAttributes[$key];
             // $after = (string)$event->sender->$key;
-            if ($event->sender->oldAttributes[$key] !== $event->sender->$key) {
+            if ($event->sender->oldAttributes[$key] != $event->sender->$key) {
                 $model = new Yii2LogField();
                 $model->table_name = $event->sender->tableName();
                 $model->field_name = $key;
