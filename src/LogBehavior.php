@@ -17,36 +17,25 @@ class LogBehavior extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_AFTER_INSERT => 'log',
-            ActiveRecord::EVENT_AFTER_UPDATE => 'log',
+            ActiveRecord::EVENT_AFTER_INSERT    => 'log',
+            ActiveRecord::EVENT_BEFORE_UPDATE   => 'log',
         ];
     }
 
     public function log($event)
     {
         $sender = $event->sender;
-        // $beforeChange = $sender->oldAttributes;  // attribute ทีั้งหมดก่อนการเปลี่ยนแปลง
-        // $afterChange = $sender->attributes;      // attribute ทีั้งหมดหลังการเปลี่ยนแปลง
-        // if (property_exists($sender::className(), 'ignoreLogAttributes')  && is_array($sender->ignoreLogAttributes)) {
-        //     foreach ($sender->ignoreLogAttributes as $attribute) {
-        //         // remove attribute ที่ทำการ ignore ออกจาก array log
-        //         unset($beforeChange[$attribute]);
-        //         unset($afterChange[$attribute]);
-        //     }
-        // }
-        echo 'before<br>';
-        \yii\helpers\VarDumper::dump( $sender->oldAttributes, $depth = 10, $highlight = true);
-        echo '<br>after<br>';
-        \yii\helpers\VarDumper::dump( $sender->attributes, $depth = 10, $highlight = true);
-        echo '<br>';
+        // echo 'before<br>';
+        // \yii\helpers\VarDumper::dump($sender->oldAttributes, $depth = 10, $highlight = true);
+        // echo '<br>after<br>';
+        // \yii\helpers\VarDumper::dump($sender->attributes, $depth = 10, $highlight = true);
+        // echo '<br>';
         foreach ($sender->attributes as $key => $val) :
-            // $before = (string)$sender->oldAttributes[$key];
-            // $after = (string)$sender->$key;
-            \yii\helpers\VarDumper::dump( $key, $depth = 10, $highlight = true); 
-            \yii\helpers\VarDumper::dump($sender->oldAttributes[$key], $depth = 10, $highlight = true);
-            \yii\helpers\VarDumper::dump($val, $depth = 10, $highlight = true);
-            // exit();
-            echo '<br>';
+            // \yii\helpers\VarDumper::dump($key, $depth = 10, $highlight = true);
+            // \yii\helpers\VarDumper::dump($sender->oldAttributes[$key], $depth = 10, $highlight = true);
+            // \yii\helpers\VarDumper::dump($val, $depth = 10, $highlight = true);
+            // // exit();
+            // echo '<br>';
             if ($sender->oldAttributes[$key] != $val) {
                 $model = new Yii2LogField();
                 $model->table_name = $sender->tableName();
@@ -64,10 +53,10 @@ class LogBehavior extends Behavior
                 $model->request_method = Yii::$app->request->method;
                 if (!$model->save()) {
                     \yii\helpers\VarDumper::dump($model->getErors(), $depth = 10, $highlight = true);
-                    exit();
+                    // exit();
                 }
             }
         endforeach;
-        exit();
+        // exit();
     }
 }
