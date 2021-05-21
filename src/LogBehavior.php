@@ -24,39 +24,38 @@ class LogBehavior extends Behavior
 
     public function log($event)
     {
-        $sender = $event->sender;
-        // echo 'before<br>';
-        // \yii\helpers\VarDumper::dump($sender->oldAttributes, $depth = 10, $highlight = true);
-        // echo '<br>after<br>';
-        // \yii\helpers\VarDumper::dump($sender->attributes, $depth = 10, $highlight = true);
-        // echo '<br>';
-        foreach ($sender->attributes as $key => $val) :
-            // \yii\helpers\VarDumper::dump($key, $depth = 10, $highlight = true);
-            // \yii\helpers\VarDumper::dump($sender->oldAttributes[$key], $depth = 10, $highlight = true);
-            // \yii\helpers\VarDumper::dump($val, $depth = 10, $highlight = true);
-            // // exit();
-            // echo '<br>';
-            if ($sender->oldAttributes[$key] != $val) {
-                $model = new Yii2LogField();
-                $model->table_name = $sender->tableName();
-                $model->field_name = $key;
-                $model->primary_key = implode(",", $sender->getPrimaryKey(true));
-                $model->before_change = (string)$sender->oldAttributes[$key];
-                $model->after_change = (string)$val;
-                $model->event_time = new Expression('NOW()');
-                $model->event_name = $event->name;
-                $model->model_class = $sender::className();
-                $model->user_id = Yii::$app->user->identity->id ?? null;
-                $model->referrer = Yii::$app->request->referrer;
-                $model->remote_ip = Yii::$app->request->remoteIP;
-                $model->remote_host = Yii::$app->request->remoteHost;
-                $model->request_method = Yii::$app->request->method;
-                if (!$model->save()) {
-                    \yii\helpers\VarDumper::dump($model->getErors(), $depth = 10, $highlight = true);
-                    // exit();
-                }
+
+        $beforeChange = $event->sender->oldAttributes;  // attribute ทีั้งหมดก่อนการเปลี่ยนแปลง
+        $afterChange = $event->sender->attributes;      // attribute ทีั้งหมดหลังการเปลี่ยนแปลง
+        if (property_exists($event->sender::className(), 'ignoreLogAttributes')  && is_array($event->sender->ignoreLogAttributes)) {
+            foreach ($event->sender->ignoreLogAttributes as $attribute) {
+                // remove attribute ที่ทำการ ignore ออกจาก array log
+                unset($beforeChange[$attribute]);
+                unset($afterChange[$attribute]);
             }
-        endforeach;
-        // exit();
+        }
+
+        if (!empty(array_diff($beforeChange, $afterChange))) {
+            foreach ($beforeChange as $key => $val) :
+                if ($afterChange[$key] != $val) :
+                    $model = new Yii2LogField();
+                    $model->table_name = $event->sender->tableName();
+                    $model->field_name = $key;
+                    // $model->primary_key = implode(",", $event->sender->getPrimaryKey(true));
+                    $model->primary_key = Json::encode($event->sender->getPrimaryKey(true));
+                    $model->before_change = (string)$val;
+                    $model->after_change = (string)$afterChange[$key];
+                    $model->event_time = date("Y-m-d H:i:s");
+                    $model->event_name = $event->name;
+                    $model->model_class = $event->sender::className();
+                    $model->user_id = Yii::$app->user->identity->id ?? null;
+                    $model->referrer = Yii::$app->request->referrer;
+                    $model->remote_ip = Yii::$app->request->remoteIP;
+                    $model->remote_host = Yii::$app->request->remoteHost;
+                    $model->request_method = Yii::$app->request->method;
+                    $model->save();
+                endif;
+            endforeach;
+        }
     }
 }
